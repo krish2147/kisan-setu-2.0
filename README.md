@@ -80,6 +80,48 @@ Set the relevant values from `.env.example` on the server:
 A transfer request is not a completed connection. An SMS marked “Provider accepted”
 is not proof of handset delivery. No Anuvadini integration is implemented.
 
+## Conversation languages
+
+Speech capabilities come from `src/sarvam-capabilities.json`, a versioned snapshot
+of Sarvam's model documentation (source URLs and verification date are included).
+The default Saaras v3 entry accepts all 23 documented STT languages, including
+three-letter codes. Bulbul v3 has a separate 11-language TTS entry. Existing
+KisanSetu message bundles are preserved and checked independently of both.
+
+`SARVAM_STT_MODEL`, `SARVAM_TTS_MODEL`, and `SARVAM_TRANSLATION_MODEL` select model
+entries from this manifest and the actual API requests use those same models.
+To adopt a provider capability change, copy/update the manifest with verified
+model entries and set `SARVAM_CAPABILITIES_FILE` to its path, then restart. There
+is no live discovery or documentation scraping during calls, and no language
+branches need adding. Unknown model capabilities fail validation at startup.
+The configured TTS must support Hindi for the existing welcome/fallback.
+
+STT codes are normalized against the selected model, independently of message
+availability. Reliable speech establishes the session language once; later crop,
+quantity, location, and acknowledgement fragments cannot change it. Short slot
+values alone do not establish a language. Consistent STT fragments can supply
+evidence together. Missing confidence is accepted for substantial speech with
+valid metadata; low or malformed confidence is insufficient. Generic unique-script
+recovery preserves the previous script fallback without guessing among languages
+sharing a script or treating Latin transliteration as English.
+
+When either the response bundle or TTS language is unavailable, the detected
+language remains recorded and locked, responses use Hindi, and a one-time spoken
+notice explains the fallback. The reason is stored separately in call metadata.
+
+Native transcripts first use the existing crop/quantity/location parser. For
+unresolved fields, `sarvam-translate:v1` can translate the utterance to English
+using the same `SARVAM_API_KEY`; that result goes through the existing parser and
+only fills missing fields. This request adds provider latency/cost (five-second
+timeout) and requires translation access on the Sarvam account. It never changes
+the conversation language or replaces already parsed values. Unavailable
+translation, unknown crops/locations outside the parser's catalog, or failures
+leave fields unresolved for the normal retry flow. Translation coverage is also
+model capability data; STT support does not imply translation or response support.
+
+Tests mock provider responses. Verify actual speech detection, translation quality,
+audio output, and fallback notices with live Exotel/Sarvam calls before deployment.
+
 ## Buyer handoff
 
 The existing caller-selected handoff authorizes a callable matched buyer for that

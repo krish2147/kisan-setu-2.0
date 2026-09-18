@@ -11,6 +11,8 @@ const {
   lockSessionLanguage,
   normalizeLanguageCode
 } = require("../server");
+const { createSpeechLanguages } = require("../src/speech-languages");
+const manifest = require("../src/sarvam-capabilities.json");
 
 function lock(transcript, language, confidence = 0.95) {
   const session = createLanguageSessionState();
@@ -115,5 +117,78 @@ test("BUY and SELL parsing plus Exotel route contracts remain intact", () => {
   const serverSource = fs.readFileSync(path.join(__dirname, "..", "server.js"), "utf8");
   assert.match(serverSource, /new WebSocket\.Server\(\{ server, path: "\/voicebot" \}\)/);
   assert.match(serverSource, /language-code=unknown/);
-  assert.match(serverSource, /model=saaras:v3/);
+  assert.match(serverSource, /encodeURIComponent\(speechLanguages.sttModel\)/);
+});
+
+test("every configured STT language, including three-letter codes, can establish detection", () => {
+  const capabilities = createSpeechLanguages({ env: {} });
+  for (const language of capabilities.sttLanguages) {
+    const session = createLanguageSessionState();
+    const result = lockSessionLanguage(session, "I have 20 kilo tomato", language, 0.96, capabilities);
+    assert.equal(result.locked, true, language);
+    assert.equal(session.detectedLanguage, language);
+    assert.equal(session.responseLanguage, MESSAGES[language] ? language : "hi-IN");
+    assert.equal(capabilities.normalize(language.replace("-IN", "_in")), language);
+    assert.equal(capabilities.normalize(language.split("-")[0]), language);
+  }
+  for (const code of ["zz-IN", "fr-IN", "gu-US", "unknown", "auto", "not_a_language_code"]) {
+    assert.equal(capabilities.normalize(code), null, code);
+  }
+});
+
+test("slot-only answers neither establish nor change a reliable language", () => {
+  const capabilities = createSpeechLanguages({ env: {} });
+  for (const language of capabilities.sttLanguages) {
+    for (const fragment of ["Ahmedabad", "Vadodara", "Tomato", "Potato", "20 kilo", "20", "ટામેટા", "અમદાવાદ"]) {
+      const fresh = createLanguageSessionState();
+      assert.equal(lockSessionLanguage(fresh, fragment, language, 0.99).locked, false, fragment);
+      const established = createLanguageSessionState();
+      lockSessionLanguage(established, "I have 20 kilo tomato", language, 0.95);
+      const before = { ...established };
+      for (const conflicting of ["hi-IN", "en-IN", "kn-IN", "ml-IN"]) {
+        lockSessionLanguage(established, fragment, conflicting, 0.99);
+        assert.deepEqual(established, before);
+      }
+    }
+  }
+});
+
+test("missing confidence works consistently and invalid confidence is not reliable metadata", () => {
+  for (const language of ["hi-IN", "mr-IN", "kok-IN", "mai-IN", "en-IN"]) {
+    assert.equal(lock("I have produce for market", language, null).result.locked, true, language);
+    for (const confidence of [0.4, "bad", "", true, {}, -1, 1.1, NaN, Infinity]) {
+      assert.equal(lock("I have produce for market", language, confidence).result.locked, false, String(confidence));
+    }
+  }
+});
+
+test("a deployment capability change needs no new language branches", () => {
+  const updated = structuredClone(manifest);
+  // Fixture only: this does not assert that Sarvam currently supports French.
+  updated.stt["test-stt"] = { source: "test fixture", languages: ["hi-IN", "fr-FR"] };
+  updated.tts["test-tts"] = { source: "test fixture", languages: ["hi-IN", "fr-FR"] };
+  const capabilities = createSpeechLanguages({
+    env: { SARVAM_STT_MODEL: "test-stt", SARVAM_TTS_MODEL: "test-tts" }, manifest: updated
+  });
+  assert.equal(capabilities.normalize("FR_fr"), "fr-FR");
+  const session = createLanguageSessionState();
+  assert.equal(lockSessionLanguage(session, "Je souhaite vendre des tomates", "fr-FR", 0.95, capabilities).locked, true);
+  assert.equal(session.detectedLanguage, "fr-FR");
+  assert.equal(session.responseLanguage, "hi-IN");
+  assert.equal(session.languageFallbackReason, "response_bundle_unavailable");
+  assert.deepEqual(capabilities.selectResponse("fr-FR", () => true), { language: "fr-FR", reason: null });
+});
+
+test("message availability cannot bypass configured TTS capability checks", () => {
+  const updated = structuredClone(manifest);
+  updated.tts["test-tts"] = { source: "test fixture", languages: ["hi-IN"] };
+  const capabilities = createSpeechLanguages({ env: { SARVAM_TTS_MODEL: "test-tts" }, manifest: updated });
+  const session = createLanguageSessionState();
+  lockSessionLanguage(session, "મારે ટામેટા વેચવા છે", "gu-IN", 0.95, capabilities);
+  assert.equal(session.detectedLanguage, "gu-IN");
+  assert.equal(session.responseLanguage, "hi-IN");
+  assert.equal(session.languageFallbackReason, "tts_language_unavailable");
+  assert.throws(() => createSpeechLanguages({ env: { SARVAM_STT_MODEL: "unverified-model" } }), /capabilities/);
+  updated.tts["test-tts"].languages = ["gu-IN"];
+  assert.throws(() => createSpeechLanguages({ env: { SARVAM_TTS_MODEL: "test-tts" }, manifest: updated }), /Hindi/);
 });

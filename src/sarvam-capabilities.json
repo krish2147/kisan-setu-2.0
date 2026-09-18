@@ -1,0 +1,89 @@
+{
+  "verifiedAt": "2026-09-19",
+  "aliases": {
+    "or": "od",
+    "oriya": "od",
+    "bengali": "bn"
+  },
+  "localeCodes": {
+    "od": "or"
+  },
+  "stt": {
+    "saaras:v3": {
+      "source": "https://docs.sarvam.ai/api/getting-started/models/saaras#language-support",
+      "languages": [
+        "hi-IN",
+        "bn-IN",
+        "kn-IN",
+        "ml-IN",
+        "mr-IN",
+        "od-IN",
+        "pa-IN",
+        "ta-IN",
+        "te-IN",
+        "en-IN",
+        "gu-IN",
+        "as-IN",
+        "ur-IN",
+        "ne-IN",
+        "kok-IN",
+        "ks-IN",
+        "sd-IN",
+        "sa-IN",
+        "sat-IN",
+        "mni-IN",
+        "brx-IN",
+        "mai-IN",
+        "doi-IN"
+      ]
+    }
+  },
+  "tts": {
+    "bulbul:v3": {
+      "source": "https://docs.sarvam.ai/api/getting-started/models/bulbul#language-support",
+      "languages": [
+        "hi-IN",
+        "bn-IN",
+        "ta-IN",
+        "te-IN",
+        "gu-IN",
+        "kn-IN",
+        "ml-IN",
+        "mr-IN",
+        "pa-IN",
+        "od-IN",
+        "en-IN"
+      ]
+    }
+  },
+  "translation": {
+    "sarvam-translate:v1": {
+      "source": "https://docs.sarvam.ai/api/getting-started/models/sarvam-translate#language-support",
+      "languages": [
+        "hi-IN",
+        "bn-IN",
+        "kn-IN",
+        "ml-IN",
+        "mr-IN",
+        "od-IN",
+        "pa-IN",
+        "ta-IN",
+        "te-IN",
+        "en-IN",
+        "gu-IN",
+        "as-IN",
+        "ur-IN",
+        "ne-IN",
+        "kok-IN",
+        "ks-IN",
+        "sd-IN",
+        "sa-IN",
+        "sat-IN",
+        "mni-IN",
+        "brx-IN",
+        "mai-IN",
+        "doi-IN"
+      ]
+    }
+  }
+}

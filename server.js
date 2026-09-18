@@ -25,6 +25,10 @@ const {
 const { LANGUAGE_NAMES, MESSAGES, getMessages, hasCompleteMessageBundle, spokenNumber } = require("./src/i18n/messages");
 const { createFast2SmsProvider } = require("./src/fast2sms");
 const { isDuplicateTurn, isStaleTurn, mergeTranscriptBuffer, transcriptRejectionReason } = require("./src/turn-taking");
+const { loadSpeechLanguages } = require("./src/speech-languages");
+const speechLanguages = loadSpeechLanguages();
+const { createMultilingualExtractor } = require("./src/multilingual-extraction");
+const extractMissingSlots = createMultilingualExtractor({ capabilities: speechLanguages, extract: extractFarmerData });
 
 const LISTENING_GUARD_MS = Number(process.env.LISTENING_GUARD_MS || 350);
 const DUPLICATE_TURN_WINDOW_MS = 1500;
@@ -205,7 +209,7 @@ const MANDI_TRANSLATIONS = {
 };
 
 function responseLanguage(languageCode) {
-  return getMessages(languageCode) === MESSAGES[languageCode] ? languageCode : "hi-IN";
+  return speechLanguages.selectResponse(languageCode, hasCompleteMessageBundle).language;
 }
 
 function messagesFor(languageCode) {
@@ -224,35 +228,12 @@ function mandiName(mandi, languageCode) {
   return MANDI_TRANSLATIONS[mandi]?.[language] || MANDI_TRANSLATIONS[mandi]?.["hi-IN"] || mandi;
 }
 
-const LANGUAGE_CODE_ALIASES = Object.freeze({
-  hi: "hi-IN", hindi: "hi-IN",
-  gu: "gu-IN", gujarati: "gu-IN",
-  kn: "kn-IN", kannada: "kn-IN",
-  ml: "ml-IN", malayalam: "ml-IN",
-  mr: "mr-IN", marathi: "mr-IN",
-  bn: "bn-IN", bengali: "bn-IN",
-  ta: "ta-IN", tamil: "ta-IN",
-  te: "te-IN", telugu: "te-IN",
-  pa: "pa-IN", punjabi: "pa-IN",
-  od: "od-IN", or: "od-IN", odia: "od-IN", oriya: "od-IN",
-  en: "en-IN", english: "en-IN"
-});
-
 function normalizeLanguageCode(languageCode) {
-  if (typeof languageCode !== "string") return null;
-  const normalized = languageCode.trim().toLowerCase().replace(/_/g, "-");
-  if (!normalized || !/^[a-z]{2}(?:-[a-z]{2})?$|^[a-z]+$/.test(normalized)) return null;
-  const base = normalized.split("-")[0];
-  const known = LANGUAGE_CODE_ALIASES[normalized] || LANGUAGE_CODE_ALIASES[base];
-  if (known) return known;
-  if (/^[a-z]{2}-in$/.test(normalized)) return `${base}-IN`;
-  return null;
+  return speechLanguages.normalize(languageCode);
 }
 
 function ttsLanguageCode(languageCode) {
-  // The legacy STT identifies Odia as od-IN; keep this adapter for the
-  // product-facing or-IN representation and Sarvam TTS compatibility.
-  return languageCode === "or-IN" ? "od-IN" : languageCode;
+  return speechLanguages.normalize(languageCode, "tts") || "hi-IN";
 }
 
 function buildTtsConfig(languageCode) {
@@ -264,59 +245,28 @@ function buildTtsConfig(languageCode) {
   };
 }
 
-function detectLanguageCandidate(languageCode, confidence, transcript) {
-  const language = normalizeLanguageCode(languageCode);
-  const numericConfidence = confidence === null || confidence === undefined
-    ? null
-    : Number(confidence);
-  const transcriptText = String(transcript || "");
+function detectLanguageCandidate(languageCode, confidence, transcript, capabilities = speechLanguages) {
+  const language = capabilities.normalize(languageCode);
+  const missingConfidence = confidence === null || confidence === undefined;
+  const numericConfidence = !missingConfidence &&
+    (typeof confidence === "number" || (typeof confidence === "string" && confidence.trim()))
+    ? Number(confidence) : NaN;
+  const validConfidence = Number.isFinite(numericConfidence) && numericConfidence >= 0 && numericConfidence <= 1;
+  const reliableMetadata = language && (missingConfidence ||
+    (validConfidence && numericConfidence >= LANGUAGE_CONFIDENCE_THRESHOLD));
+  const score = validConfidence ? numericConfidence : null;
+  if (reliableMetadata) return { language, confidence: score, reliable: true, source: "sarvam" };
 
-  // Kannada script fallback protects the first turn when language metadata is
-  // absent or conflicts at low confidence.
-  if (/[\u0C80-\u0CFF]/u.test(transcriptText) &&
-      (!language || language === "kn-IN" || numericConfidence < LANGUAGE_CONFIDENCE_THRESHOLD)) {
+  const scriptLanguage = capabilities.scriptLanguage(String(transcript || ""));
+  if (scriptLanguage) {
     return {
-      language: "kn-IN",
-      confidence: Number.isFinite(numericConfidence) ? numericConfidence : null,
+      language: scriptLanguage,
+      confidence: score,
       reliable: true,
       source: language ? "sarvam+script" : "script"
     };
   }
-
-  // Malayalam script is reliable evidence when Sarvam omits language metadata
-  // or returns a low-confidence conflicting language for the first utterance.
-  if (/[\u0D00-\u0D7F]/u.test(transcriptText) &&
-      (!language || language === "ml-IN" || numericConfidence < LANGUAGE_CONFIDENCE_THRESHOLD)) {
-    return {
-      language: "ml-IN",
-      confidence: Number.isFinite(numericConfidence) ? numericConfidence : null,
-      reliable: true,
-      source: language ? "sarvam+script" : "script"
-    };
-  }
-
-  // Gujarati script is stronger evidence than a low-confidence language ID.
-  // This also protects the demo when legacy streaming omits language metadata.
-  if (/[\u0A80-\u0AFF]/u.test(transcriptText) &&
-      (!language || language === "gu-IN" || numericConfidence < LANGUAGE_CONFIDENCE_THRESHOLD)) {
-    return {
-      language: "gu-IN",
-      confidence: Number.isFinite(numericConfidence) ? numericConfidence : null,
-      reliable: true,
-      source: language ? "sarvam+script" : "script"
-    };
-  }
-
-  if (language) {
-    return {
-      language,
-      confidence: Number.isFinite(numericConfidence) ? numericConfidence : null,
-      reliable: !Number.isFinite(numericConfidence) || numericConfidence >= LANGUAGE_CONFIDENCE_THRESHOLD,
-      source: "sarvam"
-    };
-  }
-
-  return { language: null, confidence: null, reliable: false, source: null };
+  return { language, confidence: score, reliable: false, source: language ? "sarvam" : null };
 }
 
 const app = express();
@@ -397,12 +347,10 @@ function isMeaningfulTranscript(text) {
 function isLanguageLockEligibleTranscript(text) {
   const normalized = normalizeTranscript(text);
   if (!isMeaningfulTranscript(normalized)) return false;
-  const extracted = extractFarmerData(normalized);
-  if (extracted.commodity || extracted.quantityKg || extracted.location || extracted.intent !== "UNKNOWN") {
-    return true;
-  }
-  const words = normalized.split(/\s+/).filter(Boolean);
-  return words.length >= 3 && normalized.replace(/\s/g, "").length >= 12;
+  // Slot values and numbers are useful for extraction, but are not enough
+  // evidence of a conversation language (even with high STT confidence).
+  const words = normalized.split(/\s+/).filter(word => /\p{L}/u.test(word));
+  return words.length >= 3 && (normalized.match(/\p{L}/gu) || []).length >= 8;
 }
 
 function createLanguageSessionState() {
@@ -416,25 +364,45 @@ function createLanguageSessionState() {
   };
 }
 
-function lockSessionLanguage(session, transcript, detectedLanguage, confidence) {
+function lockSessionLanguage(session, transcript, detectedLanguage, confidence, capabilities = speechLanguages) {
   if (!session || session.languageLocked) return { locked: false, reason: "already_locked" };
   if (!isLanguageLockEligibleTranscript(transcript)) {
     return { locked: false, reason: "insufficient_speech" };
   }
 
-  const candidate = detectLanguageCandidate(detectedLanguage, confidence, transcript);
+  const candidate = detectLanguageCandidate(detectedLanguage, confidence, transcript, capabilities);
   session.languageConfidence = candidate.confidence;
   if (!candidate.reliable || !candidate.language) {
     return { locked: false, reason: "language_metadata_unavailable", candidate };
   }
 
   session.detectedLanguage = candidate.language;
-  session.responseLanguage = hasCompleteMessageBundle(candidate.language) ? candidate.language : "hi-IN";
-  session.languageFallbackReason = session.responseLanguage === candidate.language
-    ? null
-    : "response_bundle_unavailable";
+  const response = capabilities.selectResponse(candidate.language, hasCompleteMessageBundle);
+  session.responseLanguage = response.language;
+  session.languageFallbackReason = response.reason;
   session.languageLocked = true;
   return { locked: true, candidate };
+}
+
+function turnLanguageEvidence(turn) {
+  const candidates = turn.languageCandidates || [];
+  const languages = candidates.map(candidate => normalizeLanguageCode(candidate.languageCode));
+  // Sarvam can split a sentence into short fragments. Use the assembled sentence
+  // only when all metadata agrees; never lend one fragment's ID to another language.
+  if (candidates.length > 1 && languages[0] && languages.every(language => language === languages[0])) {
+    const detected = candidates.map(candidate => detectLanguageCandidate(
+      candidate.languageCode, candidate.confidence, candidate.transcript
+    ));
+    if (detected.every(candidate => candidate.reliable && candidate.language === languages[0])) {
+      const scores = detected.map(candidate => candidate.confidence).filter(score => score !== null);
+      return [{
+        transcript: turn.transcriptBuffer,
+        languageCode: languages[0],
+        confidence: scores.length ? Math.min(...scores) : null
+      }, ...candidates];
+    }
+  }
+  return candidates;
 }
 
 function extractFarmerData(text) {
@@ -658,7 +626,7 @@ function streamTts(exotelSocket, streamSid, text, languageCode, metrics = null) 
     let firstAudioAt = 0;
     let audioBytes = 0;
     const tts = new WebSocket(
-      "wss://api.sarvam.ai/text-to-speech/ws?model=bulbul:v3&send_completion_event=true",
+      `wss://api.sarvam.ai/text-to-speech/ws?model=${encodeURIComponent(speechLanguages.ttsModel)}&send_completion_event=true`,
       { headers: { "Api-Subscription-Key": process.env.SARVAM_API_KEY } }
     );
     const timeout = setTimeout(() => finish(new Error("Sarvam TTS timed out")), TTS_TIMEOUT_MS);
@@ -1000,8 +968,13 @@ wss.on("connection", exotelSocket => {
   }
 
   async function safeSpeak(text, languageCode = responseLanguage(session.responseLanguage), metrics = activeResponseMetrics) {
+    const announceFallback = session.languageFallbackReason && !session.unsupportedLanguageNoticePlayed;
     try {
-      await speak(text, languageCode, metrics);
+      const notice = announceFallback
+        ? "माफ़ कीजिए, अभी आपकी भाषा में जवाब उपलब्ध नहीं है। मैं हिंदी में बात करूँगा। "
+        : "";
+      await speak(`${notice}${text}`, languageCode, metrics);
+      if (announceFallback) session.unsupportedLanguageNoticePlayed = true;
     } catch (error) {
       console.error("❌ TTS ERROR:", error.message);
       persistCallEvent("ERROR", { source: "tts", message: error.message });
@@ -1242,11 +1215,22 @@ wss.on("connection", exotelSocket => {
 
     console.log("⏱ PROCESSING START");
     console.log("📝 FINAL TURN:", finalTranscript);
-    for (const candidate of turn.languageCandidates) {
+    for (const candidate of turnLanguageEvidence(turn)) {
       lockLanguageFromFirstSpeech(candidate.transcript, candidate.languageCode, candidate.confidence);
       if (session.languageLocked) break;
     }
     if (!session.languageLocked) lockLanguageFromFirstSpeech(finalTranscript, null, null);
+
+    const extraction = await extractMissingSlots({
+      transcript: finalTranscript,
+      language: session.detectedLanguage,
+      slots: turn.slots
+    });
+    if (terminalCallPersisted || exotelSocket.readyState !== WebSocket.OPEN || isStaleTurn(turn, session)) return;
+    turn.slots = extraction.slots;
+    if (extraction.status !== "not_needed") {
+      persistCallEvent("INPUT_NORMALIZATION", { status: extraction.status, language: session.detectedLanguage });
+    }
 
     try {
       callRepository.addTranscript(callSid, finalTranscript, session.detectedLanguage || session.responseLanguage, new Date().toISOString());
@@ -1542,7 +1526,7 @@ wss.on("connection", exotelSocket => {
   const sarvamUrl =
     "wss://api.sarvam.ai/speech-to-text/ws" +
     "?language-code=unknown" +
-    "&model=saaras:v3" +
+    `&model=${encodeURIComponent(speechLanguages.sttModel)}` +
     "&mode=transcribe" +
     "&sample_rate=8000" +
     "&input_audio_codec=pcm_s16le" +
@@ -1761,7 +1745,9 @@ module.exports = {
   resolveFinalMatchAction,
   callRepository,
   server,
-  spokenNumber
+  spokenNumber,
+  speechLanguages,
+  turnLanguageEvidence
 };
 app.get("/connect-buyer", (req, res) => {
   const callSid = requestCallSid(req.query);
