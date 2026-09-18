@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KisanSetu Admin Command Center</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="brand">KISAN<span>SETU</span></div>
+      <div class="subtitle">Admin Command Center</div>
+    </div>
+    <div id="connectionStatus" class="connection"><i></i><span>Connecting</span></div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div>
+        <p class="eyebrow">INTERNAL OPERATIONS</p>
+        <h1>Voice marketplace intelligence, live.</h1>
+        <p class="intro-copy">Structured activity from KisanSetu phone calls. All analytics shown here come directly from the call database.</p>
+      </div>
+      <button id="refreshButton" class="refresh" type="button">Refresh data</button>
+    </section>
+
+    <section class="metrics" aria-label="Call summary">
+      <article><span>Total Calls</span><strong id="totalCalls">0</strong></article>
+      <article><span>Sell Requests</span><strong id="sellRequests">0</strong></article>
+      <article><span>Buy Requests</span><strong id="buyRequests">0</strong></article>
+      <article><span>Buyer Connections</span><strong id="buyerConnections">0</strong></article>
+      <article class="active-card"><span>Active Calls</span><strong id="activeCalls">0</strong></article>
+    </section>
+
+    <section class="matching-metrics" aria-label="Matching summary">
+      <article><span>Matches Generated</span><strong id="matchesGenerated">0</strong></article>
+      <article><span>Average Matches / Request</span><strong id="averageMatches">0</strong></article>
+      <article><span>Requests With No Match</span><strong id="noMatchRequests">0</strong></article>
+    </section>
+
+    <section class="live-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow"><i class="live-dot"></i> REAL-TIME MONITOR</p>
+          <h2>Live Call</h2>
+        </div>
+        <span id="liveBadge" class="badge idle">IDLE</span>
+      </div>
+
+      <div id="noLiveCall" class="empty-state">
+        <div class="phone-icon">☎</div>
+        <strong>Waiting for the next call</strong>
+        <span>Incoming Exotel activity will appear here automatically.</span>
+      </div>
+
+      <div id="liveContent" class="live-content hidden">
+        <div class="live-fields">
+          <div><span>Call ID</span><strong id="liveCallId">—</strong></div>
+          <div><span>Language</span><strong id="liveLanguage">—</strong></div>
+          <div><span>Intent</span><strong id="liveIntent">—</strong></div>
+          <div><span>Crop</span><strong id="liveCrop">—</strong></div>
+          <div><span>Quantity</span><strong id="liveQuantity">—</strong></div>
+          <div><span>Location</span><strong id="liveLocation">—</strong></div>
+          <div><span>Buyer Connect Requested</span><strong id="liveBuyerConnect">No</strong></div>
+          <div><span>Top-5 SMS Requested</span><strong id="liveSmsRequested">No</strong></div>
+          <div><span>SMS Status</span><strong id="liveSmsStatus">—</strong></div>
+          <div><span>SMS Recipient</span><strong id="liveSmsRecipient">—</strong></div>
+          <div><span>SMS Language</span><strong id="liveSmsLanguage">—</strong></div>
+          <div><span>SMS Type</span><strong id="liveSmsType">—</strong></div>
+          <div><span>SMS Requested At</span><strong id="liveSmsRequestedAt">—</strong></div>
+          <div><span>SMS Sent At</span><strong id="liveSmsSentAt">—</strong></div>
+          <div class="stage-field"><span>Current Stage</span><strong id="liveStage">—</strong></div>
+        </div>
+        <div class="ai-status">
+          <h3>AI Status</h3>
+          <div id="aiSteps" class="ai-steps"></div>
+        </div>
+      </div>
+      <section id="liveMatches" class="live-matches hidden">
+        <div class="match-summary-line"><strong id="liveMatchCount">Matches Found: 0</strong></div>
+        <article id="recommendedMatch" class="recommended-match"></article>
+        <div class="match-table-wrap">
+          <table>
+            <thead><tr><th>Rank</th><th>Name</th><th>Type</th><th>Location</th><th>Distance</th><th>Quantity</th><th>Price</th><th>Verified</th><th>Score</th></tr></thead>
+            <tbody id="liveMatchesBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section class="calls-panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CALL HISTORY</p>
+          <h2>Recent Calls</h2>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Call ID</th><th>Language</th><th>Buy / Sell</th>
+              <th>Crop</th><th>Quantity</th><th>Location</th><th>Status</th><th>Buyer Connect</th>
+              <th>SMS Requested</th><th>SMS Status</th>
+            </tr>
+          </thead>
+          <tbody id="callsBody"></tbody>
+        </table>
+      </div>
+      <div id="noCalls" class="table-empty">No genuine calls recorded yet.</div>
+    </section>
+  </main>
+
+  <dialog id="detailDialog">
+    <div class="dialog-head">
+      <div><p class="eyebrow">CALL INSPECTION</p><h2 id="detailTitle">Call details</h2></div>
+      <button id="closeDialog" type="button" aria-label="Close">×</button>
+    </div>
+    <div id="detailMeta" class="detail-meta"></div>
+    <div class="detail-grid">
+      <section><h3>Transcript</h3><div id="detailTranscripts" class="timeline"></div></section>
+      <section class="mandi-detail-section">
+        <h3>Mandi Results <small id="detailMandiCount"></small></h3>
+        <div class="mandi-table-wrap">
+          <table class="mandi-table">
+            <thead><tr><th>Commodity</th><th>Mandi</th><th>District</th><th>Min</th><th>Modal</th><th>Max</th><th>Date</th><th>Source</th><th>Status</th></tr></thead>
+            <tbody id="detailMandi"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    <section class="detail-matches-section"><h3>Top 5 Matches &amp; Score Breakdown</h3><div id="detailMatches" class="detail-matches"></div></section>
+    <section><h3>Lifecycle Events</h3><div id="detailEvents" class="timeline event-timeline"></div></section>
+  </dialog>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

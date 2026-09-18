@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KisanSetu AI</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<header>
+  <div>
+    <div class="brand">KisanSetu <span>AI</span></div>
+    <div class="tag">Any phone. Any language. Direct market access.</div>
+  </div>
+  <div class="status"><i></i> SYSTEM LIVE</div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">SIH 2026 • LIVE PROTOTYPE</div>
+    <h1>Voice-first farmer–buyer discovery</h1>
+    <p>The farmer speaks naturally. KisanSetu converts speech into structured market data, confirms it, and finds compatible buyers or sellers.</p>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <small>LIVE INPUT</small>
+          <h2>Voice Processing</h2>
+        </div>
+        <select id="mode">
+          <option value="SELL">Farmer / Seller</option>
+          <option value="BUY">Buyer</option>
+        </select>
+      </div>
+
+      <div class="mic-wrap">
+        <button id="mic" class="mic">🎙</button>
+        <div>
+          <strong id="listenState">Tap to speak</strong>
+          <div class="muted">Hindi • Gujarati • English / Hinglish</div>
+        </div>
+      </div>
+
+      <label>Transcript</label>
+      <textarea id="transcript" placeholder='Try: "Mere paas 500 kilo pyaaz hai, Vadodara mein 22 rupaye kilo bechna hai."'></textarea>
+      <button id="process" class="primary">Process with AI Layer →</button>
+
+      <div id="steps" class="steps">
+        <div><b>1</b> Speech captured</div>
+        <div><b>2</b> Natural language parsed</div>
+        <div><b>3</b> Structured fields extracted</div>
+        <div><b>4</b> Confirm & store</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <small>AI EXTRACTION</small>
+          <h2>Understood Details</h2>
+        </div>
+        <div id="intentBadge" class="badge">SELL</div>
+      </div>
+
+      <div class="fields">
+        <div><label>Commodity</label><input id="commodity" placeholder="Onion" /></div>
+        <div><label>Quantity (kg)</label><input id="quantity" type="number" placeholder="500" /></div>
+        <div><label>Location</label><input id="location" placeholder="Vadodara" /></div>
+        <div><label id="priceLabel">Expected price ₹/kg</label><input id="price" type="number" placeholder="22" /></div>
+      </div>
+
+      <div id="confirmSentence" class="confirm-box">
+        Speak or type a sentence to begin.
+      </div>
+
+      <button id="confirm" class="success" disabled>✓ Confirm & Create Listing</button>
+    </section>
+  </div>
+
+  <section id="matchSection" class="panel hidden">
+    <div class="panel-head">
+      <div>
+        <small>MATCHING ENGINE</small>
+        <h2>Best Seller Matches</h2>
+      </div>
+      <div id="matchCount" class="badge green">0 MATCHES</div>
+    </div>
+    <div id="matches" class="matches"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <small>MARKETPLACE DATABASE</small>
+        <h2>Active Farmer Listings</h2>
+      </div>
+      <button id="refresh" class="ghost">Refresh</button>
+    </div>
+    <div id="listingTable"></div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

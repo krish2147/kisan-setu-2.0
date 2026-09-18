@@ -1,0 +1,25 @@
+{
+  "farmers": [
+    {
+      "id": 1,
+      "name": "Ramesh Patel",
+      "phone": "98XXXXXX12",
+      "commodity": "onion",
+      "quantityKg": 500,
+      "location": "Vadodara",
+      "pricePerKg": 22,
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "name": "Mahesh Parmar",
+      "phone": "98XXXXXX44",
+      "commodity": "onion",
+      "quantityKg": 750,
+      "location": "Anand",
+      "pricePerKg": 21,
+      "status": "active"
+    }
+  ],
+  "buyers": []
+}
