@@ -1,0 +1,27 @@
+{
+  "description": "Fictional KisanSetu demonstration marketplace. These are not real companies, buyers, sellers, prices, or live market offers.",
+  "listings": [
+    { "key": "demo-buy-tomato-a", "type": "BUYER", "name": "Demo Tomato Buyer A", "side": "BUY", "commodity": "Tomato", "quantityKg": 500, "pricePerKg": 24, "location": "Vadodara", "verified": true, "active": true, "callableDemoBuyer": true },
+    { "key": "demo-buy-tomato-b", "type": "BUYER", "name": "Demo Tomato Buyer B", "side": "BUY", "commodity": "Tomato", "quantityKg": 450, "pricePerKg": 23.5, "location": "Anand", "verified": true, "active": true },
+    { "key": "demo-buy-tomato-c", "type": "BUYER", "name": "Demo Tomato Buyer C", "side": "BUY", "commodity": "Tomato", "quantityKg": 700, "pricePerKg": 25, "location": "Ahmedabad", "verified": false, "active": true },
+    { "key": "demo-buy-tomato-d", "type": "BUYER", "name": "Demo Tomato Buyer D", "side": "BUY", "commodity": "Tomato", "quantityKg": 600, "pricePerKg": 24.5, "location": "Surat", "verified": true, "active": true },
+    { "key": "demo-buy-tomato-e", "type": "BUYER", "name": "Demo Tomato Buyer E", "side": "BUY", "commodity": "Tomato", "quantityKg": 300, "pricePerKg": 22, "location": "Ahmedabad", "verified": true, "active": true },
+    { "key": "demo-buy-tomato-f", "type": "BUYER", "name": "Demo Tomato Buyer F", "side": "BUY", "commodity": "Tomato", "quantityKg": 800, "pricePerKg": null, "location": "Anand", "verified": true, "active": true },
+    { "key": "demo-buy-onion-a", "type": "BUYER", "name": "Demo Onion Buyer A", "side": "BUY", "commodity": "Onion", "quantityKg": 550, "pricePerKg": 22, "location": "Vadodara", "verified": true, "active": true },
+    { "key": "demo-buy-onion-b", "type": "BUYER", "name": "Demo Onion Buyer B", "side": "BUY", "commodity": "Onion", "quantityKg": 450, "pricePerKg": 23, "location": "Anand", "verified": true, "active": true },
+    { "key": "demo-buy-onion-c", "type": "BUYER", "name": "Demo Onion Buyer C", "side": "BUY", "commodity": "Onion", "quantityKg": 700, "pricePerKg": 21.5, "location": "Ahmedabad", "verified": false, "active": true },
+    { "key": "demo-buy-onion-d", "type": "BUYER", "name": "Demo Onion Buyer D", "side": "BUY", "commodity": "Onion", "quantityKg": 300, "pricePerKg": 24, "location": "Surat", "verified": true, "active": true },
+
+    { "key": "demo-sell-onion-a", "type": "SELLER", "name": "Demo Onion Seller A", "side": "SELL", "commodity": "Onion", "quantityKg": 500, "pricePerKg": 21.5, "location": "Anand", "verified": true, "active": true },
+    { "key": "demo-sell-onion-b", "type": "SELLER", "name": "Demo Onion Seller B", "side": "SELL", "commodity": "Onion", "quantityKg": 600, "pricePerKg": 22, "location": "Vadodara", "verified": true, "active": true },
+    { "key": "demo-sell-onion-c", "type": "SELLER", "name": "Demo Onion Seller C", "side": "SELL", "commodity": "Onion", "quantityKg": 750, "pricePerKg": 20.5, "location": "Ahmedabad", "verified": true, "active": true },
+    { "key": "demo-sell-onion-d", "type": "SELLER", "name": "Demo Onion Seller D", "side": "SELL", "commodity": "Onion", "quantityKg": 400, "pricePerKg": 19.5, "location": "Surat", "verified": false, "active": true },
+    { "key": "demo-sell-onion-e", "type": "SELLER", "name": "Demo Onion Seller E", "side": "SELL", "commodity": "Onion", "quantityKg": 300, "pricePerKg": null, "location": "Anand", "verified": true, "active": true },
+    { "key": "demo-sell-tomato-a", "type": "SELLER", "name": "Demo Tomato Seller A", "side": "SELL", "commodity": "Tomato", "quantityKg": 550, "pricePerKg": 23, "location": "Vadodara", "verified": true, "active": true },
+    { "key": "demo-sell-tomato-b", "type": "SELLER", "name": "Demo Tomato Seller B", "side": "SELL", "commodity": "Tomato", "quantityKg": 500, "pricePerKg": 22, "location": "Anand", "verified": true, "active": true },
+    { "key": "demo-sell-tomato-c", "type": "SELLER", "name": "Demo Tomato Seller C", "side": "SELL", "commodity": "Tomato", "quantityKg": 700, "pricePerKg": 21, "location": "Ahmedabad", "verified": false, "active": true },
+    { "key": "demo-sell-tomato-d", "type": "SELLER", "name": "Demo Tomato Seller D", "side": "SELL", "commodity": "Tomato", "quantityKg": 450, "pricePerKg": 20, "location": "Surat", "verified": true, "active": true },
+    { "key": "demo-sell-tomato-e", "type": "SELLER", "name": "Demo Tomato Seller E", "side": "SELL", "commodity": "Tomato", "quantityKg": 300, "pricePerKg": null, "location": "Vadodara", "verified": false, "active": true }
+  ]
+}
+

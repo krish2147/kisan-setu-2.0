@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KisanSetu | Operations</title>
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#overview"><span class="brand-mark">↗</span> KisanSetu<span class="brand-ai">AI</span></a>
+    <div class="workspace-label">ADMIN WORKSPACE</div>
+    <nav aria-label="Main navigation">
+      <a href="#overview" data-nav="overview"><span>◫</span> Overview</a>
+      <a href="#calls" data-nav="calls"><span>◉</span> Call activity</a>
+      <a href="#marketplace" data-nav="marketplace"><span>⇄</span> Marketplace</a>
+      <a href="#mandi" data-nav="mandi"><span>▥</span> Mandi prices</a>
+      <a href="#services" data-nav="services"><span>⚙</span> Connections</a>
+    </nav>
+    <div class="sidebar-bottom"><strong>A voice. A connection.<br>A better opportunity.</strong><p>Bringing farmers and buyers<br>closer, in their own language.</p><small>KISANSETU OPERATIONS</small></div>
+  </aside>
+  <div class="app-shell">
+  <header class="topbar">
+    <div class="breadcrumb">Workspace <span>/</span> <strong id="pageTitle">Overview</strong></div>
+    <div class="topbar-actions"><div id="connectionStatus" class="connection"><i></i><span>Connecting</span></div><button id="refreshButton" class="refresh" type="button" aria-label="Refresh dashboard">↻ <span>Refresh</span></button><span class="avatar" title="Operations workspace">KS</span></div>
+  </header>
+  <main>
+    <div id="errorBanner" class="notice error hidden" role="alert"></div>
+    <div class="page-heading"><div><p class="eyebrow">KISANSETU ADMINISTRATION</p><h1 id="pageHeading">A clearer view of every connection.</h1><p id="pageDescription">Your voice marketplace, from first conversation to the next opportunity.</p></div><div class="heading-meta"><span id="todayDate"></span><small id="updatedAt">Loading workspace…</small></div></div>
+    <section class="welcome-banner" data-page="overview"><div><span class="hero-label"><i></i> VOICE-FIRST AGRICULTURE</span><h2>Local voices.<br>Wider possibilities.</h2><p>Connect farmers with market information and compatible buyers.<br>Follow every conversation, all in one place.</p><button class="light-button" type="button" data-open-listing>＋ Add a market listing</button><a class="hero-link" href="#calls">Explore call activity ↗</a></div><div class="field-art" aria-hidden="true"><div class="sun"></div><div class="field field-one"></div><div class="field field-two"></div><div class="field field-three"></div><div class="art-caption">बोलिए. जुड़िए. आगे बढ़िए.<small>SPEAK. CONNECT. GROW.</small></div></div></section>
+    <div data-page="overview">
+    <section class="metrics" aria-label="Call summary">
+      <article><span>Total Calls</span><strong id="totalCalls">0</strong></article>
+      <article><span>Sell Requests</span><strong id="sellRequests">0</strong></article>
+      <article><span>Buy Requests</span><strong id="buyRequests">0</strong></article>
+      <article><span>Transfer Requests</span><strong id="buyerConnections">0</strong></article>
+      <article class="active-card"><span>Active Calls</span><strong id="activeCalls">0</strong></article>
+    </section>
+
+    <section class="matching-metrics" aria-label="Matching summary">
+      <article><span>Recorded Matches</span><strong id="matchesGenerated">0</strong></article>
+      <article><span>Average Matches / Request</span><strong id="averageMatches">0</strong></article>
+      <article><span>Requests With No Match</span><strong id="noMatchRequests">0</strong></article>
+    </section>
+
+    <p id="historyNote" class="section-note hidden"></p>
+    </div>
+    <div class="insights-grid" data-page="overview"><section class="insight-card"><div class="section-heading"><div><p class="eyebrow">CONVERSATION PULSE</p><h2>Last 7 days</h2></div><span class="subtle">Calls · IST</span></div><div id="activityChart" class="activity-chart"></div></section><section class="insight-card"><div class="section-heading"><div><p class="eyebrow">LANGUAGE ACCESS</p><h2>Every voice matters</h2></div></div><div id="languageChart" class="language-chart"></div></section></div>
+    <section class="live-panel" data-page="overview calls">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow"><i class="live-dot"></i> REAL-TIME MONITOR</p>
+          <h2>Live conversation</h2>
+        </div>
+        <span id="liveBadge" class="badge idle">IDLE</span>
+      </div>
+
+      <div id="noLiveCall" class="empty-state">
+        <div class="phone-icon">☎</div>
+        <strong>Waiting for the next call</strong>
+        <span>Incoming Exotel activity will appear here automatically.</span>
+      </div>
+
+      <div id="liveContent" class="live-content hidden">
+        <div class="live-fields">
+          <div><span>Call ID</span><strong id="liveCallId">—</strong></div>
+          <div><span>Language</span><strong id="liveLanguage">—</strong></div>
+          <div><span>Intent</span><strong id="liveIntent">—</strong></div>
+          <div><span>Crop</span><strong id="liveCrop">—</strong></div>
+          <div><span>Quantity</span><strong id="liveQuantity">—</strong></div>
+          <div><span>Location</span><strong id="liveLocation">—</strong></div>
+          <div><span>Buyer Connect Requested</span><strong id="liveBuyerConnect">No</strong></div>
+          <div><span>Top-5 SMS Requested</span><strong id="liveSmsRequested">No</strong></div>
+          <div><span>SMS Status</span><strong id="liveSmsStatus">—</strong></div>
+          <div><span>SMS Recipient</span><strong id="liveSmsRecipient">—</strong></div>
+          <div><span>SMS Language</span><strong id="liveSmsLanguage">—</strong></div>
+          <div><span>SMS Type</span><strong id="liveSmsType">—</strong></div>
+          <div><span>SMS Requested At</span><strong id="liveSmsRequestedAt">—</strong></div>
+          <div><span>SMS Sent At</span><strong id="liveSmsSentAt">—</strong></div>
+          <div class="stage-field"><span>Current Stage</span><strong id="liveStage">—</strong></div>
+        </div>
+        <div class="ai-status">
+          <h3>AI Status</h3>
+          <div id="aiSteps" class="ai-steps"></div>
+        </div>
+      </div>
+      <section id="liveMatches" class="live-matches hidden">
+        <div class="match-summary-line"><strong id="liveMatchCount">Matches Found: 0</strong></div>
+        <article id="recommendedMatch" class="recommended-match"></article>
+        <div class="match-table-wrap">
+          <table>
+            <thead><tr><th>Rank</th><th>Name</th><th>Type</th><th>Location</th><th>Distance</th><th>Quantity</th><th>Price</th><th>Verified</th><th>Score</th></tr></thead>
+            <tbody id="liveMatchesBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section class="calls-panel" data-page="overview calls">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CALL HISTORY</p>
+          <h2>Recent conversations</h2>
+        </div>
+      </div>
+      <div class="table-toolbar"><label class="search-field"><span>⌕</span><input id="callSearch" type="search" placeholder="Search crop, location or call ID" aria-label="Search calls"></label><select id="callFilter" aria-label="Filter calls"><option value="ALL">All calls</option><option value="SELL">Sell requests</option><option value="BUY">Buy requests</option><option value="ACTIVE">Active calls</option><option value="COMPLETED">Completed</option><option value="DISCONNECTED">Disconnected</option></select><span id="callCount" class="subtle"></span></div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th><th>Call ID</th><th>Language</th><th>Buy / Sell</th>
+              <th>Crop</th><th>Quantity</th><th>Location</th><th>Status</th><th>Buyer Connect</th>
+              <th>SMS Requested</th><th>SMS Status</th>
+            </tr>
+          </thead>
+          <tbody id="callsBody"></tbody>
+        </table>
+      </div>
+      <div id="noCalls" class="table-empty">No conversations yet. Your first incoming call will appear here.</div>
+    </section>
+    <section class="workspace-panel" data-page="marketplace">
+      <div class="section-heading"><div><p class="eyebrow">DIRECT MARKET ACCESS</p><h2>Buyer &amp; seller listings</h2></div><button class="primary-button" type="button" data-open-listing>＋ New listing</button></div>
+      <div class="market-summary" id="marketSummary"></div>
+      <div class="table-toolbar"><label class="search-field"><span>⌕</span><input id="listingSearch" type="search" placeholder="Search name, crop or location" aria-label="Search listings"></label><select id="listingFilter" aria-label="Filter listings"><option value="ALL">All listings</option><option value="SELL">Sellers</option><option value="BUY">Buyers</option><option value="INACTIVE">Inactive</option></select></div>
+      <div id="marketplaceList" class="listing-grid"></div><p class="section-note">Listings are captured from complete phone requests or entered by your team. New participants are unverified until independently checked. Match scores indicate ranking, not a guaranteed sale.</p>
+    </section>
+    <section class="workspace-panel" data-page="mandi"><div class="section-heading"><div><p class="eyebrow">MARKET INFORMATION</p><h2>Official mandi prices</h2></div><span class="source-badge">AGMARKNET / data.gov.in</span></div><p class="section-note">Find reported prices near a location. Dates and sources stay visible so you know how recent each price is.</p><form id="mandiForm" class="mandi-form"><label>Commodity<input name="commodity" required maxlength="80" placeholder="e.g. Tomato"></label><label>City or district<input name="location" required maxlength="120" placeholder="e.g. Vadodara"></label><button class="primary-button" type="submit">Find prices ↗</button></form><div id="mandiResults" class="mandi-results"><div class="empty-state"><span class="empty-symbol">▥</span><strong>Market information, with a source.</strong><span>Choose a commodity and location to find reported prices.</span></div></div></section>
+    <section class="workspace-panel" data-page="services"><div class="section-heading"><div><p class="eyebrow">PLATFORM CONNECTIONS</p><h2>Service readiness</h2></div></div><p class="section-note">Configuration is checked locally. A configured service still needs a successful live request to verify connectivity.</p><div id="serviceList" class="service-grid"></div><div class="flow-note"><strong>Your call journey</strong><p>Phone call → speech recognition → crop, quantity &amp; location → market lookup &amp; matching → caller-selected next step.</p><p>Phone calls use Exotel and Sarvam. Configure your providers on the server before testing an end-to-end call.</p></div></section>
+    <footer><span>KisanSetu <strong>AI</strong> <span class="footer-divider">/</span> Connecting agriculture through conversation.</span><span>Built around real conversations.</span></footer>
+  </main>
+  </div>
+  <dialog id="listingDialog" class="form-dialog"><div class="dialog-head"><div><p class="eyebrow">GROW YOUR NETWORK</p><h2>Add a market listing</h2></div><button type="button" data-close="listingDialog" aria-label="Close listing form">×</button></div>
+    <form id="listingForm"><div class="capture-box"><label for="captureText">Start with a sentence <span class="subtle">· optional</span></label><textarea id="captureText" maxlength="4000" placeholder="I want to sell 500 kg tomato in Vadodara"></textarea><div class="capture-actions"><select id="speechLanguage" aria-label="Speech language"><option value="hi-IN">Hindi</option><option value="gu-IN">Gujarati</option><option value="en-IN">English</option><option value="mr-IN">Marathi</option><option value="pa-IN">Punjabi</option><option value="bn-IN">Bengali</option><option value="ta-IN">Tamil</option><option value="te-IN">Telugu</option><option value="kn-IN">Kannada</option><option value="ml-IN">Malayalam</option><option value="or-IN">Odia</option></select><button id="captureMic" class="refresh" type="button">◉ Speak</button><button id="extractButton" class="refresh" type="button">Extract details ↗</button></div><small id="captureHelp">Or fill in the fields below. Always review extracted details before saving.</small></div>
+    <div class="form-grid"><label>Listing type<select name="side" required><option value="SELL">Seller · produce available</option><option value="BUY">Buyer · produce required</option></select></label><label>Name / business<input name="name" required maxlength="100" autocomplete="name" placeholder="Participant name"></label><label>Phone <span class="subtle">· optional</span><input name="phone" type="tel" maxlength="16" autocomplete="tel" placeholder="+91 followed by 10 digits"></label><label>Commodity<input name="commodity" required maxlength="80" placeholder="e.g. Tomato"></label><label>Quantity (kg)<input name="quantityKg" type="number" min="0.01" max="100000000" step="any" required placeholder="e.g. 500"></label><label>City / district<input name="location" required maxlength="120" placeholder="e.g. Vadodara"></label><label>Price (₹/kg) <span class="subtle">· optional</span><input name="pricePerKg" type="number" min="0.01" max="1000000" step="any" placeholder="Asking price or buyer offer"></label></div><p class="section-note">Only enter participant details you have permission to use. This creates a real listing eligible for phone-call matching.</p><p id="listingError" class="form-error" role="alert"></p><button id="saveListing" class="primary-button wide" type="submit">Confirm &amp; save listing</button></form>
+  </dialog>
+  <dialog id="matchesDialog"><div class="dialog-head"><div><p class="eyebrow">MARKETPLACE DISCOVERY</p><h2>Compatible participants</h2></div><button type="button" data-close="matchesDialog" aria-label="Close matches">×</button></div><div id="workspaceMatches" class="listing-grid"></div></dialog>
+  <dialog id="authDialog" class="auth-dialog"><form id="authForm"><p class="eyebrow">KISANSETU WORKSPACE</p><h2>Welcome back.</h2><p>Enter your workspace access token to continue.</p><label>Access token<input id="accessToken" type="password" required autocomplete="current-password"></label><p id="authError" class="form-error" role="alert"></p><button class="primary-button wide" type="submit">Open workspace →</button></form></dialog>
+  <div id="toast" class="toast" role="status"></div>
+
+
+  <dialog id="detailDialog">
+    <div class="dialog-head">
+      <div><p class="eyebrow">CALL INSPECTION</p><h2 id="detailTitle">Call details</h2></div>
+      <button id="closeDialog" type="button" aria-label="Close">×</button>
+    </div>
+    <div id="detailMeta" class="detail-meta"></div>
+    <div class="detail-grid">
+      <section><h3>Transcript</h3><div id="detailTranscripts" class="timeline"></div></section>
+      <section class="mandi-detail-section">
+        <h3>Mandi Results <small id="detailMandiCount"></small></h3>
+        <div class="mandi-table-wrap">
+          <table class="mandi-table">
+            <thead><tr><th>Commodity</th><th>Mandi</th><th>District</th><th>Min</th><th>Modal</th><th>Max</th><th>Date</th><th>Source</th><th>Status</th></tr></thead>
+            <tbody id="detailMandi"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    <section class="detail-matches-section"><h3>Top 5 Matches &amp; Score Breakdown</h3><div id="detailMatches" class="detail-matches"></div></section>
+    <section><h3>Lifecycle Events</h3><div id="detailEvents" class="timeline event-timeline"></div></section>
+  </dialog>
+
+  <script src="/admin/admin.js"></script>
+  <script src="/admin/workspace.js"></script>
+</body>
+</html>
